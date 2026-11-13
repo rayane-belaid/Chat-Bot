@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: base(~{::content}, 'ChatBot - Accueil')}">
+
+<body>
+
+<section th:fragment="content" class="container py-5">
+
+    <div class="row align-items-center">
+
+        <div class="col-lg-7">
+
+            <h1>Bienvenue sur ChatBot</h1>
+
+            <p>
+                Discutez avec votre assistant intelligent.
+            </p>
+
+            <a class="btn btn-primary" th:href="@{/connexion}">
+                Se connecter
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+</body>
+</html>

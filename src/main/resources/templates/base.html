@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:fragment="base(content, titre)">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title th:text="${titre}">ChatBot</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet"
+          th:href="@{/vendor/css/bootstrap.min.css}">
+
+    <!-- CSS du projet -->
+    <link rel="stylesheet"
+          th:href="@{/css/style.css}">
+
+</head>
+
+<body>
+<div class="min-vh-100">
+
+<!-- En-tête commun -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- Contenu spécifique de la page -->
+<main th:replace="${content}">
+</main>
+</div>
+<!-- Pied de page commun -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Bootstrap JavaScript -->
+<script th:src="@{/vendor/js/bootstrap.bundle.min.js}"></script>
+
+</body>
+</html>
