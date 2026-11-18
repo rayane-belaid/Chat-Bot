@@ -10,9 +10,25 @@
 
     <title th:text="${titre}">ChatBot</title>
 
-    <!-- Bootstrap CSS -->
+    <!-- Applique le thème enregistré avant l'affichage (évite le flash) -->
+    <script>
+        (function () {
+            var t = null;
+            try { t = localStorage.getItem('theme'); } catch (e) {}
+            if (!t) { t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+            document.documentElement.dataset.theme = t;
+            document.documentElement.dataset.bsTheme = t;
+        })();
+    </script>
+
+    <!-- Polices -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet"
-          th:href="@{/vendor/css/bootstrap.min.css}">
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
+
+    <!-- Bootstrap CSS (fichier présent dans vendor/css) -->
+    <link rel="stylesheet"
+          th:href="@{/vendor/css/bootstrap.css}">
 
     <!-- CSS du projet -->
     <link rel="stylesheet"
@@ -21,20 +37,101 @@
 </head>
 
 <body>
+
+<!-- Logo et icônes réutilisables : <svg><use href="#logo"/></svg> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+        <linearGradient id="gn" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#29b6ff"/>
+            <stop offset=".55" stop-color="#4f6bff"/>
+            <stop offset="1" stop-color="#a56bff"/>
+        </linearGradient>
+    </defs>
+    <symbol id="logo" viewBox="0 0 48 48" fill="none">
+        <ellipse cx="24" cy="24" rx="21" ry="10" transform="rotate(-22 24 24)" stroke="url(#gn)" stroke-width="1.6" opacity=".85"/>
+        <path d="M12 38V13c0-3 3-4 5.5-2L33 28V10h4v25c0 3-3 4-5.5 2L16 20v18z" fill="url(#gn)"/>
+    </symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12l15-8-6 17-3-7-6-2z"/></symbol>
+</svg>
+
+<div class="aurora" aria-hidden="true"></div>
+
+<div class="page-wrap">
+
+    <!-- En-tête commun -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <!-- Contenu spécifique de la page -->
+    <main th:replace="${content}">
+    </main>
+
+    <!-- Pied de page commun -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+</div>
+
+<!-- Bootstrap JavaScript (fichier présent dans vendor/js) -->
+<script th:src="@{/vendor/js/bootstrap.bundle.js}"></script>
+
+<!-- Bouton de thème clair / sombre -->
+<script>
+    document.querySelectorAll('[data-theme-toggle]').forEach(function (b) {
+        b.addEventListener('click', function () {
+            var r = document.documentElement;
+            var t = r.dataset.theme === 'dark' ? 'light' : 'dark';
+            r.dataset.theme = t;
+            r.dataset.bsTheme = t;
+            try { localStorage.setItem('theme', t); } catch (e) {}
+        });
+    });
+</script>
+
+</body>
+</html>
+
+
+<!-- Ancienne version
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:fragment="base(content, titre)">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title th:text="${titre}">ChatBot</title>
+
+    Bootstrap CSS
+    <link rel="stylesheet"
+          th:href="@{/vendor/css/bootstrap.min.css}">
+
+    CSS du projet
+    <link rel="stylesheet"
+          th:href="@{/css/style.css}">
+
+</head>
+
+<body>
 <div class="min-vh-100">
 
-<!-- En-tête commun -->
+En-tête commun
 <div th:replace="~{fragments/header :: header}"></div>
 
-<!-- Contenu spécifique de la page -->
+Contenu spécifique de la page
 <main th:replace="${content}">
 </main>
 </div>
-<!-- Pied de page commun -->
+
+Pied de page commun
 <div th:replace="~{fragments/footer :: footer}"></div>
 
-<!-- Bootstrap JavaScript -->
+Bootstrap JavaScript
 <script th:src="@{/vendor/js/bootstrap.bundle.min.js}"></script>
 
 </body>
 </html>
+-->

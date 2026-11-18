@@ -9,6 +9,73 @@
 
 <header th:fragment="header">
 
+    <nav class="navbar navbar-expand-lg site-nav">
+        <div class="container">
+
+            <a class="brand" th:href="@{/}">
+                <svg width="30" height="30"><use href="#logo"/></svg>
+                <span>Novai <b>AI</b></span>
+            </a>
+
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#menuPrincipal"
+                    aria-controls="menuPrincipal"
+                    aria-expanded="false"
+                    aria-label="Ouvrir le menu">
+
+                <svg class="i"><use href="#i-menu"/></svg>
+
+            </button>
+
+            <div class="collapse navbar-collapse" id="menuPrincipal">
+
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">
+                            Accueil
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/connexion}">
+                            Connexion
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <button class="icon-btn" type="button" data-theme-toggle
+                                aria-label="Changer de thème" title="Changer de thème">
+                            <svg class="i"><use href="#i-moon"/></svg>
+                        </button>
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+    </nav>
+
+</header>
+
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+</head>
+
+<body>
+
+<header th:fragment="header">
+
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
 
@@ -54,4 +121,4 @@
 </header>
 
 </body>
-</html>
+</html> -->

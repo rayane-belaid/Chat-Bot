@@ -1,0 +1,109 @@
+package org.ldv.chatbot.controller
+
+import IAServiceFactory
+
+import org.ldv.chatbot.model.dao.ConversationDAO
+import org.ldv.chatbot.model.dao.MessageDAO
+import org.ldv.chatbot.model.dao.ModeleIADAO
+import org.ldv.chatbot.model.entity.Conversation
+import org.ldv.chatbot.model.entity.Message
+import org.ldv.chatbot.model.entity.TypeMessage
+import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Controller
+import org.springframework.ui.Model
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestParam
+import java.time.LocalDateTime
+import org.springframework.web.server.ResponseStatusException
+
+
+@Controller
+class ChatController(
+    private val iaServiceFactory: IAServiceFactory,
+    private val conversationDAO: ConversationDAO,
+    private val messageDAO: MessageDAO,
+    private val modeleIADAO: ModeleIADAO
+) {
+    // Les méthodes du contrôleur sont détaillées ci-dessous.
+
+    // Page d'accueil : liste des conversations
+    @GetMapping("/")
+    fun accueil(model: Model): String {
+
+        // Retire la conversation courante
+        model.addAttribute("conversation", null)
+
+        model.addAttribute("modeles", modeleIADAO.findAll())
+        model.addAttribute("messages", emptyList<Message>())
+        model.addAttribute(
+            "conversations",
+            conversationDAO.findAllByOrderByDateDerniereModificationDesc()
+        )
+
+        return "utilisateur/chat"
+    }
+
+    // Création d'une nouvelle conversation
+    @PostMapping("/conversations")
+    fun creerConversation(
+        @RequestParam prompt: String,
+        @RequestParam idModele: Long
+    ): String {
+
+        // Récupération du modèle sélectionné
+        val modele = modeleIADAO.findById(idModele)
+            .orElseThrow {
+                ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Modèle IA introuvable"
+                )
+            }
+
+        // Création de la conversation
+        val conversation = Conversation(
+            titre = prompt.take(50),
+            dateCreation = LocalDateTime.now(),
+            modeleIA = modele
+        )
+
+        val conversationEnregistree =
+            conversationDAO.save(conversation)
+
+        // Enregistrement du premier message
+        val messageUtilisateur = Message(
+            contenu = prompt,
+            dateCreation = LocalDateTime.now(),
+            typeMessage = TypeMessage.UTILISATEUR,
+            conversation = conversationEnregistree
+        )
+
+        messageDAO.save(messageUtilisateur)
+
+        try {
+            // Sélection automatique du service
+            val iaService = iaServiceFactory.getService(modele)
+
+            // Appel du fournisseur correspondant
+            val reponse = iaService.envoyerPrompt(prompt, modele)
+
+
+            val messageAssistant = Message(
+                contenu = reponse,
+                dateCreation = LocalDateTime.now(),
+                typeMessage = TypeMessage.ASSISTANT,
+                conversation = conversationEnregistree
+            )
+
+            messageDAO.save(messageAssistant)
+
+        } catch (e: Exception) {
+            println("Erreur lors de l’appel au modèle ${modele.nom} : ${e.message}")
+        }
+
+
+        conversationDAO.save(conversationEnregistree)
+
+        return "redirect:/conversations/${conversationEnregistree.id}"
+    }
+}
