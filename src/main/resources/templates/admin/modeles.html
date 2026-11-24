@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="~{fragments/base-app :: base-app(~{::content}, 'Modèles d’IA', 'modeles')}">
+
+  <th:block th:fragment="content">
+    <div class="page">
+
+      <div class="wrapw">
+
+        <div class="bar">
+          <h1>Modèles d’IA</h1>
+
+          <div class="srch">
+            <input id="searchModel"
+                   type="search"
+                   placeholder="Rechercher un modèle…"
+                   aria-label="Rechercher un modèle">
+          </div>
+
+          <a class="btn pri" th:href="@{/admin/modeles/nouveau}">
+            ＋ Nouveau modèle
+          </a>
+        </div>
+
+        <div class="card wrap">
+
+          <table>
+            <thead>
+            <tr>
+              <th>Modèle</th>
+              <th>Fournisseur</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+
+            <tbody id="modelsTable">
+
+            <tr th:each="modele : ${modeles}">
+              <td>
+                <div class="who">
+
+                  <div class="mlogo"
+                       th:text="${#strings.substring(modele.nom,0,1)}">
+                    M
+                  </div>
+
+                  <div>
+                    <b th:text="${modele.nom}">Nom du modèle</b>
+                    <small th:text="${modele.urlAPI}">URL API</small>
+                  </div>
+
+                </div>
+              </td>
+
+              <td th:text="${modele.fourniseurIA != null ? modele.fourniseurIA.nom : '—'}">
+                Fournisseur
+              </td>
+
+              <td th:text="${modele.description}">
+                Description
+              </td>
+
+              <td>
+                <div class="acts">
+
+                  <a class="btn ico"
+                     title="Voir"
+                     aria-label="Voir"
+                     th:href="@{/admin/modeles/{id}(id=${modele.id})}">
+                    ◉
+                  </a>
+
+                  <a class="btn ico"
+                     title="Modifier"
+                     aria-label="Modifier"
+                     th:href="@{/admin/modeles/{id}/modifier(id=${modele.id})}">
+                    ✎
+                  </a>
+
+                  <form th:action="@{/admin/modeles/{id}/supprimer(id=${modele.id})}"
+                        method="post">
+
+                    <button class="btn ico bad"
+                            type="submit"
+                            title="Supprimer"
+                            aria-label="Supprimer">
+                      ⌫
+                    </button>
+
+                  </form>
+
+                </div>
+              </td>
+            </tr>
+
+            <tr th:if="${modeles == null or #lists.isEmpty(modeles)}">
+              <td colspan="4" style="color:var(--mut)">
+                Aucun modèle disponible pour le moment.
+              </td>
+            </tr>
+
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById('searchModel')?.addEventListener('input', function () {
+        const value = this.value.toLowerCase();
+
+        document.querySelectorAll('#modelsTable tr').forEach(row => {
+          row.hidden = !row.innerText.toLowerCase().includes(value);
+        });
+      });
+    </script>
+
+  </th:block>
+</th:block>
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base-app :: base-app(~{::content}, 'Modèles d’IA', 'modeles')}">
+
+<body>
+
+<div th:fragment="content" class="page">
+  <div class="wrapw">
+
+    <div class="bar">
+      <h1>Modèles d’IA</h1>
+
+      <div class="srch">
+        <svg class="i"><use href="#i-search"/></svg>
+        <input type="search" class="form-control" placeholder="Rechercher un modèle"
+               aria-label="Rechercher" data-filter="#tableModeles">
+      </div>
+
+      <a class="btn btn-primary" th:href="@{/admin/modeles/nouveau}">
+        <svg class="i"><use href="#i-plus"/></svg>Nouveau modèle
+      </a>
+    </div>
+
+    <div class="panel table-wrap">
+      <table class="data-table" id="tableModeles">
+        <thead>
+        <tr>
+          <th>Modèle</th>
+          <th>Fournisseur</th>
+          <th>URL de l’API</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr th:each="m : ${modeles}">
+          <td>
+            <div class="who">
+              <div class="mlogo" th:classappend="${m.fourniseurIA?.nom == 'Mistral'} ? 'v'">
+                <img th:if="${m.cheminLogo != null}" th:src="@{${m.cheminLogo}}" alt="">
+                <span th:if="${m.cheminLogo == null}" th:text="${#strings.substring(m.nom,0,1)}">M</span>
+              </div>
+              <b th:text="${m.nom}">Mistral Large</b>
+            </div>
+          </td>
+          <td>
+                        <span class="tag" th:classappend="${m.fourniseurIA?.nom == 'Mistral'} ? 'v'"
+                              th:text="${m.fourniseurIA?.nom}">Mistral</span>
+          </td>
+          <td class="muted" th:text="${m.urlAPI}">https://api.mistral.ai/v1/chat/completions</td>
+          <td>
+            <div class="acts">
+              <a class="icon-btn" th:href="@{/admin/modeles/{id}/modifier(id=${m.id})}"
+                 aria-label="Modifier" title="Modifier"><svg class="i"><use href="#i-edit"/></svg></a>
+              <form th:action="@{/admin/modeles/{id}/supprimer(id=${m.id})}" method="post"
+                    onsubmit="return confirm('Supprimer ce modèle ?')">
+                <button class="icon-btn bad" type="submit" aria-label="Supprimer" title="Supprimer">
+                  <svg class="i"><use href="#i-trash"/></svg>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+
+        <tr th:if="${#lists.isEmpty(modeles)}">
+          <td colspan="4" class="muted">Aucun modèle. Créez votre premier modèle.</td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html> -->

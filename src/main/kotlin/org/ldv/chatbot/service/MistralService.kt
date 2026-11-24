@@ -1,8 +1,9 @@
+package org.ldv.chatbot.service
+
 import org.ldv.chatbot.dto.mistral.MistralChatRequest
 import org.ldv.chatbot.dto.mistral.MistralChatResponse
 import org.ldv.chatbot.dto.mistral.MistralMessage
 import org.ldv.chatbot.model.entity.ModeleIA
-import org.ldv.chatbot.service.IAService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service

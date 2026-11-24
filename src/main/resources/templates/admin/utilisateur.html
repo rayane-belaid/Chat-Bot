@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base-app :: base-app(~{::content}, 'Utilisateurs', 'utilisateurs')}">
+
+<body>
+
+<div th:fragment="content" class="page">
+    <div class="wrapw">
+
+        <div class="bar">
+            <h1>Utilisateurs</h1>
+
+            <div class="srch">
+                <svg class="i"><use href="#i-search"/></svg>
+                <input type="search" class="form-control" placeholder="Rechercher un utilisateur"
+                       aria-label="Rechercher" data-filter="#tableUtilisateurs">
+            </div>
+
+            <button class="btn btn-primary" type="button"
+                    data-bs-toggle="modal" data-bs-target="#modalUtilisateur">
+                <svg class="i"><use href="#i-plus"/></svg>Ajouter un utilisateur
+            </button>
+        </div>
+
+        <div class="panel table-wrap">
+            <table class="data-table" id="tableUtilisateurs">
+                <thead>
+                <tr>
+                    <th>Utilisateur</th>
+                    <th>Rôle</th>
+                    <th>Compte actif</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <tr th:each="u : ${utilisateurs}">
+                    <td>
+                        <div class="who">
+                            <div class="av" th:data-name="${u.nom}">U</div>
+                            <div>
+                                <b th:text="${u.nom}">Camille Durand</b>
+                                <small th:text="${u.email}">camille@novai.ai</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="tag" th:classappend="${u.role != 'ADMIN'} ? 'g'"
+                              th:text="${u.role == 'ADMIN'} ? 'Administrateur' : 'Utilisateur'">Utilisateur</span>
+                    </td>
+                    <td>
+                        <form th:action="@{/admin/utilisateurs/{id}/activer(id=${u.id})}" method="post">
+                            <div class="form-check form-switch m-0">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                       th:checked="${u.actif}" onchange="this.form.submit()"
+                                       th:attr="aria-label='Activer le compte de ' + ${u.nom}">
+                            </div>
+                        </form>
+                    </td>
+                    <td>
+                        <div class="acts">
+                            <a class="icon-btn" th:href="@{/admin/utilisateurs/{id}/modifier(id=${u.id})}"
+                               aria-label="Modifier" title="Modifier"><svg class="i"><use href="#i-edit"/></svg></a>
+                            <form th:action="@{/admin/utilisateurs/{id}/supprimer(id=${u.id})}" method="post"
+                                  onsubmit="return confirm('Supprimer cet utilisateur ?')">
+                                <button class="icon-btn bad" type="submit" aria-label="Supprimer" title="Supprimer">
+                                    <svg class="i"><use href="#i-trash"/></svg>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(utilisateurs)}">
+                    <td colspan="4" class="muted">Aucun utilisateur. Ajoutez le premier compte.</td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- Fenêtre d'ajout d'un utilisateur -->
+    <div class="modal fade" id="modalUtilisateur" tabindex="-1" aria-labelledby="titreModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form class="modal-content" th:action="@{/admin/utilisateurs}" method="post">
+                <div class="modal-body p-4">
+
+                    <h3 id="titreModal">Ajouter un utilisateur</h3>
+                    <p class="sub">Il pourra se connecter avec cette adresse e-mail.</p>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="u_nom">Nom complet</label>
+                        <input class="form-control" id="u_nom" name="nom" placeholder="Ex. Marie Dupont" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="u_email">Adresse e-mail</label>
+                        <input class="form-control" type="email" id="u_email" name="email"
+                               placeholder="marie.dupont@novai.ai" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label" for="u_role">Rôle</label>
+                        <select class="form-select" id="u_role" name="role">
+                            <option value="USER">Utilisateur : accès au chat</option>
+                            <option value="ADMIN">Administrateur : gère modèles et utilisateurs</option>
+                        </select>
+                    </div>
+
+                    <div class="acts">
+                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Ajouter</button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

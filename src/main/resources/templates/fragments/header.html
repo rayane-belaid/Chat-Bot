@@ -6,6 +6,120 @@
 </head>
 
 <body>
+<aside th:fragment="sidebar(actif)" class="side">
+    <a class="brand" th:href="@{/}">
+        <svg width="30" height="30"><use href="#logo"/></svg>
+        <span>Novai <b>AI</b></span>
+    </a>
+
+    <a class="btn btn-primary" th:href="@{/}">
+        <svg class="i"><use href="#i-plus"/></svg>Nouvelle conversation
+    </a>
+    <!-- Nouvelle conversation -->
+    <a th:href="@{/}" class="btn btn-outline-light w-100 mb-4">
+        + Nouvelle conversation
+    </a>
+
+    <h6 class="text-secondary">Historique</h6>
+    <div class="list-group">
+        <a th:each="c : ${conversations}"
+           th:href="@{/conversations/{id}(id=${c.id})}"
+           th:text="${c.titre}"
+           class="list-group-item list-group-item-action"
+           th:classappend="${conversation != null and conversation.id == c.id} ? 'active' : ''">
+        </a>
+    </div>
+        <h4>Administration</h4>
+        <a class="nav" th:classappend="${actif == 'modeles'} ? 'on'" th:href="@{/admin/modeles}">
+            <svg class="i"><use href="#i-layers"/></svg>Modèles d’IA
+        </a>
+        <a class="nav" th:classappend="${actif == 'utilisateurs'} ? 'on'" th:href="@{/admin/utilisateurs}">
+            <svg class="i"><use href="#i-users"/></svg>Utilisateurs
+        </a>
+    </div>
+
+    <div class="sp"></div>
+
+    <button class="nav" type="button" data-theme-toggle>
+        <svg class="i"><use href="#i-moon"/></svg>Changer de thème
+    </button>
+
+    <div class="user">
+        <div class="av" th:data-name="${#authentication.name}">U</div>
+        <div class="flex-grow-1" th:text="${#authentication.name}">Utilisateur</div>
+        <form th:action="@{/deconnexion}" method="post">
+            <button class="icon-btn" type="submit" aria-label="Se déconnecter">
+                <svg class="i"><use href="#i-out"/></svg>
+            </button>
+        </form>
+    </div>
+</aside>
+<header th:fragment="header">
+
+    <nav class="navbar navbar-expand-lg site-nav">
+        <div class="container">
+
+            <a class="brand" th:href="@{/}">
+                <svg width="30" height="30"><use href="#logo"/></svg>
+                <span>Novai <b>AI</b></span>
+            </a>
+
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#menuPrincipal"
+                    aria-controls="menuPrincipal"
+                    aria-expanded="false"
+                    aria-label="Ouvrir le menu">
+
+                <svg class="i"><use href="#i-menu"/></svg>
+
+            </button>
+
+            <div class="collapse navbar-collapse" id="menuPrincipal">
+
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">
+                            Accueil
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/connexion}">
+                            Connexion
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <button class="icon-btn" type="button" data-theme-toggle
+                                aria-label="Changer de thème" title="Changer de thème">
+                            <svg class="i"><use href="#i-moon"/></svg>
+                        </button>
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+    </nav>
+
+</header>
+
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+</head>
+
+<body>
 
 <header th:fragment="header">
 
@@ -54,4 +168,4 @@
 </header>
 
 </body>
-</html>
+</html> -->

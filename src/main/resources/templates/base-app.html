@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:fragment="base-app(content, titre, actif)">
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${titre}">ChatBot</title>
+
+  <!-- Applique le thème enregistré avant l'affichage -->
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('theme'); } catch (e) {}
+      if (!t) { t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+      document.documentElement.dataset.theme = t;
+      document.documentElement.dataset.bsTheme = t;
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
+  <link rel="stylesheet" th:href="@{/vendor/css/bootstrap.css}">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+
+</head>
+
+<body class="app">
+
+<!-- Logo et icônes -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gn" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#29b6ff"/>
+      <stop offset=".55" stop-color="#4f6bff"/>
+      <stop offset="1" stop-color="#a56bff"/>
+    </linearGradient>
+  </defs>
+  <symbol id="logo" viewBox="0 0 48 48" fill="none">
+    <ellipse cx="24" cy="24" rx="21" ry="10" transform="rotate(-22 24 24)" stroke="url(#gn)" stroke-width="1.6" opacity=".85"/>
+    <path d="M12 38V13c0-3 3-4 5.5-2L33 28V10h4v25c0 3-3 4-5.5 2L16 20v18z" fill="url(#gn)"/>
+  </symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12l15-8-6 17-3-7-6-2z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.3c2 .7 3.5 2.6 3.5 5.7"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/></symbol>
+</svg>
+
+<div class="aurora" aria-hidden="true"></div>
+
+<div class="shell">
+
+  <!-- Menu latéral (fragment défini dans fragments/header.html) -->
+  <aside th:replace="~{fragments/header :: sidebar(${actif})}"></aside>
+
+  <div class="main">
+
+    <header class="topbar">
+      <button class="icon-btn burger" type="button" data-nav-toggle aria-label="Ouvrir le menu">
+        <svg class="i"><use href="#i-menu"/></svg>
+      </button>
+      <h2 th:text="${titre}">Titre</h2>
+    </header>
+
+    <!-- Contenu spécifique de la page -->
+    <div th:replace="${content}"></div>
+
+  </div>
+
+</div>
+
+<script th:src="@{/vendor/js/bootstrap.bundle.js}"></script>
+
+<script>
+  // Thème clair / sombre
+  document.querySelectorAll('[data-theme-toggle]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var r = document.documentElement;
+      var t = r.dataset.theme === 'dark' ? 'light' : 'dark';
+      r.dataset.theme = t;
+      r.dataset.bsTheme = t;
+      try { localStorage.setItem('theme', t); } catch (e) {}
+    });
+  });
+
+  // Menu latéral sur mobile
+  document.querySelectorAll('[data-nav-toggle]').forEach(function (b) {
+    b.addEventListener('click', function () { document.body.classList.toggle('nav-open'); });
+  });
+  document.querySelectorAll('.side a').forEach(function (a) {
+    a.addEventListener('click', function () { document.body.classList.remove('nav-open'); });
+  });
+
+  // Initiales des avatars
+  document.querySelectorAll('.av[data-name]').forEach(function (el) {
+    el.textContent = el.dataset.name.trim().split(/\s+/).map(function (w) { return w[0]; })
+            .slice(0, 2).join('').toUpperCase();
+  });
+
+  // Recherche dans un tableau : <input data-filter="#idDuTableau">
+  document.querySelectorAll('[data-filter]').forEach(function (inp) {
+    inp.addEventListener('input', function () {
+      var q = inp.value.toLowerCase();
+      document.querySelectorAll(inp.dataset.filter + ' tbody tr').forEach(function (tr) {
+        tr.hidden = tr.textContent.toLowerCase().indexOf(q) === -1;
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

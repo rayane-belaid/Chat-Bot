@@ -1,7 +1,6 @@
 package org.ldv.chatbot.controller
 
-import IAServiceFactory
-
+import org.ldv.chatbot.service.IAServiceFactory
 import org.ldv.chatbot.model.dao.ConversationDAO
 import org.ldv.chatbot.model.dao.MessageDAO
 import org.ldv.chatbot.model.dao.ModeleIADAO
@@ -12,11 +11,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
-import java.time.LocalDateTime
 import org.springframework.web.server.ResponseStatusException
-
+import java.time.LocalDateTime
 
 @Controller
 class ChatController(
@@ -25,8 +24,6 @@ class ChatController(
     private val messageDAO: MessageDAO,
     private val modeleIADAO: ModeleIADAO
 ) {
-    // Les méthodes du contrôleur sont détaillées ci-dessous.
-
     // Page d'accueil : liste des conversations
     @GetMapping("/")
     fun accueil(model: Model): String {
@@ -38,12 +35,11 @@ class ChatController(
         model.addAttribute("messages", emptyList<Message>())
         model.addAttribute(
             "conversations",
-            conversationDAO.findAllByOrderByDateDerniereModificationDesc()
+            conversationDAO.findAllByOrderByDateCreation()
         )
 
         return "utilisateur/chat"
     }
-
     // Création d'une nouvelle conversation
     @PostMapping("/conversations")
     fun creerConversation(
@@ -101,9 +97,82 @@ class ChatController(
             println("Erreur lors de l’appel au modèle ${modele.nom} : ${e.message}")
         }
 
+        conversationEnregistree.dateCreation =
+            LocalDateTime.now()
 
         conversationDAO.save(conversationEnregistree)
 
         return "redirect:/conversations/${conversationEnregistree.id}"
     }
-}
+    // Affichage d'une conversation
+    @GetMapping("/conversations/{id}")
+    fun afficherConversation(
+        @PathVariable id: Long,
+        model: Model
+    ): String {
+
+        val conversation = conversationDAO.findById(id)
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+
+        model.addAttribute(
+            "conversations",
+            conversationDAO.findAllByOrderByDateCreation()
+        )
+
+        model.addAttribute("conversation", conversation)
+        model.addAttribute(
+            "messages",
+            conversation.messages.sortedBy { it.dateCreation }
+        )
+
+        return "utilisateur/chat"
+    }
+    // Envoi d'un nouveau message dans une conversation existante
+    @PostMapping("/conversations/{id}/messages")
+    fun envoyerMessage(
+        @PathVariable id: Long,
+        @RequestParam prompt: String
+    ): String {
+
+        val conversation = conversationDAO.findById(id)
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+
+        // Enregistrement du message utilisateur
+        val messageUtilisateur = Message(
+            contenu = prompt,
+            dateCreation = LocalDateTime.now(),
+            typeMessage = TypeMessage.UTILISATEUR,
+            conversation = conversation
+        )
+
+        messageDAO.save(messageUtilisateur)
+
+        try {
+            val modele = conversation.modeleIA!!
+            // Sélection automatique du service
+            val iaService = iaServiceFactory.getService(modele)
+
+            // Appel du fournisseur correspondant
+            val reponse = iaService.envoyerPrompt(prompt, modele)
+
+
+            val messageAssistant = Message(
+                contenu = reponse,
+                dateCreation = LocalDateTime.now(),
+                typeMessage = TypeMessage.ASSISTANT,
+                conversation = conversation
+            )
+
+            messageDAO.save(messageAssistant)
+
+        } catch (e: Exception) {
+            println("Erreur lors de l'appel à ${conversation.modeleIA!!.nom} : ${e.message}")
+        }
+
+        conversation.dateCreation = LocalDateTime.now()
+        conversationDAO.save(conversation)
+
+        return "redirect:/conversations/$id"
+    }
+    }
+
