@@ -2,21 +2,29 @@ package org.ldv.chatbot.config
 
 import org.ldv.chatbot.model.dao.FourniseurIADAO
 import org.ldv.chatbot.model.dao.ModeleIADAO
+import org.ldv.chatbot.model.dao.RoleDAO
+import org.ldv.chatbot.model.dao.UtilisateurDAO
 import org.ldv.chatbot.model.entity.FourniseurIA
 import org.ldv.chatbot.model.entity.ModeleIA
+import org.ldv.chatbot.model.entity.Role
+import org.ldv.chatbot.model.entity.Utilisateur
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.boot.CommandLineRunner
+import org.springframework.security.crypto.password.PasswordEncoder
 
 @Configuration
 class DataInitializer(
     private val fourniseurIADAO: FourniseurIADAO,
-    private val modeleIADAO: ModeleIADAO
+    private val modeleIADAO: ModeleIADAO,
+    private val roleDAO: RoleDAO,
+    private val utilisateurDAO: UtilisateurDAO,
+    private val passwordEncoder: PasswordEncoder
+
 ) {
 
     @Bean
     fun initData() = CommandLineRunner {
-
         // Création du fournisseur Mistral s'il n'existe pas
         val mistral = fourniseurIADAO.findAll()
             .firstOrNull { it.nom == "Mistral" }
@@ -38,6 +46,7 @@ class DataInitializer(
                     description = "Modèles d'intelligence artificielle de Google."
                 )
             )
+
 
         // Liste des modèles à initialiser
         val modeles = listOf(
@@ -84,5 +93,45 @@ class DataInitializer(
                 modeleIADAO.save(modele)
             }
         }
+        // Les rôles
+        val roles = roleDAO.findAll()
+        if (roles.isEmpty()) {
+            roleDAO.save(Role(nom = "Utilisateur", nomLogique ="ROLE_USER" ))
+            roleDAO.save(Role(nom = "Administrateur", nomLogique ="ROLE_ADMIN"))
+        }
+        val roleAdmin = roleDAO.findAll().first { it.nomLogique == "ROLE_ADMIN" }
+        val roleUser = roleDAO.findAll().first { it.nomLogique == "ROLE_USER" }
+
+// Les utilisateurs
+        val utilisateurs = utilisateurDAO.findAll()
+        if (utilisateurs.isEmpty()) {
+            utilisateurDAO.save(
+                Utilisateur(
+                    prenom = "Timothée",
+                    nom = "Moulin",
+                    email = "admin@email.com",
+                    motDePasse = passwordEncoder.encode("admin123")!!,
+                    role = roleAdmin
+                )
+            )
+            utilisateurDAO.save(
+                Utilisateur(
+                    nom = "Prane",
+                    prenom = "Doli",
+                    email = "doli.prane@email.com",
+                    motDePasse = passwordEncoder.encode("user123")!!,
+                    role = roleUser)
+            )
+            utilisateurDAO.save(
+                Utilisateur(
+                    prenom = "Rayane",
+                    nom = "Leboss",
+                    email = "admin@boss.com",
+                    motDePasse = passwordEncoder.encode("123")!!,
+                    role = roleAdmin
+                )
+            )
+        }
+
     }
 }

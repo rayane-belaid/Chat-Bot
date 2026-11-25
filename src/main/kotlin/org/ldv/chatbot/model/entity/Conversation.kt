@@ -20,6 +20,8 @@ class Conversation(
     var modeleIA: ModeleIA,
 
     @OneToMany(mappedBy = "conversation")
-    var messages: MutableList<Message> = mutableListOf()
-
+    var messages: MutableList<Message> = mutableListOf(),
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "utilisateur_id", nullable = false)
+    var utilisateur: Utilisateur
 )

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: base(~{::content}, 'ChatBot - Connexion')}">
+
+<body>
+
+<section th:fragment="content" class="auth">
+
+    <div class="auth-card panel">
+
+        <div class="auth-side">
+            <div class="brand">
+                <svg width="34" height="34"><use href="#logo"/></svg>
+                <span>Novai <b>AI</b></span>
+            </div>
+            <div>
+                <h2>Content de vous revoir.</h2>
+                <p>Connectez-vous pour reprendre vos conversations avec l’assistant.</p>
+            </div>
+            <div class="orb"></div>
+        </div>
+
+        <form class="auth-form" th:action="@{/login}" method="post">
+
+            <h1>Connexion</h1>
+            <p class="sub">Accédez à votre espace.</p>
+
+            <div class="alert alert-danger" th:if="${param.error}" role="alert">
+                Adresse e-mail ou mot de passe incorrect.
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">
+                    Adresse e-mail
+                </label>
+
+                <input
+                        type="email"
+                        class="form-control"
+                        id="email"
+                        name="email"
+                        placeholder="Entrez votre adresse e-mail"
+                        autocomplete="email">
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="form-label">
+                    Mot de passe
+                </label>
+
+                <input
+                        type="password"
+                        class="form-control"
+                        id="password"
+                        name="password"
+                        placeholder="Entrez votre mot de passe"
+                        autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                Se connecter
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+</body>
+</html>
+<!-- <!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: base(~{::content}, 'ChatBot - Connexion')}">
+
+<body>
+
+<section th:fragment="content" class="container py-5">
+
+  <div class="row justify-content-center">
+
+    <div class="col-md-6">
+
+      <h1 class="mb-4">Connexion</h1>
+
+      <form>
+
+        <div class="mb-3">
+          <label for="email" class="form-label">
+            Adresse e-mail
+          </label>
+
+          <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  placeholder="Entrez votre adresse e-mail">
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">
+            Mot de passe
+          </label>
+
+          <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  placeholder="Entrez votre mot de passe">
+        </div>
+
+        <button type="button" class="btn btn-primary">
+          Se connecter
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</section>
+
+</body>
+</html> -->

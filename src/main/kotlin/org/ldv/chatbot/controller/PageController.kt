@@ -6,13 +6,16 @@ import org.springframework.web.bind.annotation.GetMapping
 @Controller
 class PageController {
 
-    @GetMapping("/accueil")
+    /*@GetMapping("/accueil")
     fun accueil(): String {
         return "accueil"
-    }
+    }*/
 
-    @GetMapping("/connexion")
-    fun connexion(): String {
-        return "auth/connexion"
+
+
+        @GetMapping("/login")
+        fun login(): String {
+            return "auth/login"
+
+        }
     }
-}
