@@ -1,4 +1,5 @@
 package org.ldv.chatbot.dto.gemini
 
-class GeminiPart {
-}
+data class GeminiPart(
+    val text: String? = null
+)
