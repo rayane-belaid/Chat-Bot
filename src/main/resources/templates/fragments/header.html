@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <meta charset="UTF-8">
@@ -11,6 +11,31 @@
         <svg width="30" height="30"><use href="#logo"/></svg>
         <span>Novai <b>AI</b></span>
     </a>
+    <div class="" th:if="${utilisateur != null}">
+
+
+
+
+<span th:text="${utilisateur != null
+   ? utilisateur.prenom + ' ' + utilisateur.nom
+   : 'Anonyme'}">
+   Anonyme
+</span>
+
+
+        <br>
+
+
+        <small th:text="${utilisateur != null
+   ? utilisateur.role.nom
+   : 'Visiteur'}">
+            Visiteur
+        </small>
+
+
+
+
+    </div>
 
     <a class="btn btn-primary" th:href="@{/}">
         <svg class="i"><use href="#i-plus"/></svg>Nouvelle conversation
@@ -36,7 +61,7 @@
         <a class="nav" th:classappend="${actif == 'utilisateurs'} ? 'on'" th:href="@{/admin/utilisateurs}">
             <svg class="i"><use href="#i-users"/></svg>Utilisateurs
         </a>
-    </div>
+
 
     <div class="sp"></div>
 
@@ -93,12 +118,19 @@
                             <button type="submit" class="nav-link">
                                 Déconnexion
                             </button>
+                            <input type="hidden"
+                                   th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}">
                         </form>
                     </li>
-                    <input type="hidden"
-                               th:name="${_csrf.parameterName}"
-                               th:value="${_csrf.token}">
-                    </form>
+                    <li class="nav-item">
+                        <div sec:authorize="hasRole('ADMIN')">
+                            <h6>Administration</h6>
+                            <a th:href="@{/admin/modeles-ia}">Gestion des modèles IA</a>
+                        </div>
+                    </li>
+
+
                     <li class="nav-item">
                         <button class="icon-btn" type="button" data-theme-toggle
                                 aria-label="Changer de thème" title="Changer de thème">

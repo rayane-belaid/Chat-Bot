@@ -52,7 +52,7 @@ class ChatController(
         model.addAttribute("messages", emptyList<Message>())
         model.addAttribute(
             "conversations",
-            conversationDAO.findAllByUtilisateurOrderByDateDerniereModificationDesc(utilisateur)
+            conversationDAO.findAllByUtilisateurOrderByDateCreationDesc(utilisateur)
         )
 
         return "utilisateur/chat"
@@ -64,6 +64,8 @@ class ChatController(
         @RequestParam idModele: Long,
         authentication: Authentication
     ): String {
+// Recupere l'utilisateur
+        val utilisateur = this.getUtilisateurConnecte(authentication)
 
         // Récupération du modèle sélectionné
         val modele = modeleIADAO.findById(idModele)
@@ -78,8 +80,10 @@ class ChatController(
         val conversation = Conversation(
             titre = prompt.take(50),
             dateCreation = LocalDateTime.now(),
-            modeleIA = modele
+            modeleIA = modele,
+            utilisateur = utilisateur
         )
+
 
         val conversationEnregistree =
             conversationDAO.save(conversation)
@@ -129,13 +133,19 @@ class ChatController(
         model: Model,
         authentication: Authentication
     ): String {
+        //Recupere l'utilisateur de la session
+        val utilisateur = this.getUtilisateurConnecte(authentication)
+        // Ajout de l'utilisateur à la vue
+        model.addAttribute("utilisateur", utilisateur)
 
-        val conversation = conversationDAO.findById(id)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+        val conversation = conversationDAO
+            .findByIdAndUtilisateur(id,utilisateur)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND,"Conversation introuvable")
+
 
         model.addAttribute(
             "conversations",
-            conversationDAO.findAllByUtilisateurOrderByDateDerniereModificationDesc(utilisateur)
+            conversationDAO.findAllByUtilisateurOrderByDateCreationDesc(utilisateur = utilisateur)
         )
 
         model.addAttribute("conversation", conversation)
